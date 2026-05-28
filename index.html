@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Văn bản - Khởi tạo Toàn diện</title>
+    <style>
+        :root {
+            --border-color: #e2e8f0;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #ffffff; color: var(--text-main); padding: 40px; }
+
+        /* Top Action Bar */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .app-title h2 { font-size: 18px; font-weight: 600; color: var(--primary); }
+        
+        .create-trigger-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .create-trigger-btn:hover { opacity: 0.9; }
+
+        .console-box { font-size: 13px; color: var(--text-muted); background: #f8fafc; padding: 12px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 24px; }
+
+        /* --- Comprehensive Minimalist Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-window {
+            background: white;
+            width: 700px;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 15px; font-weight: 600; color: var(--primary); }
+        .close-modal-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+
+        .modal-body { padding: 24px; overflow-y: auto; font-size: 13px; }
+        
+        /* Grid Form Controls */
+        .form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; }
+        .form-group.full-width { width: 100%; margin-bottom: 16px; }
+        
+        .form-group label { font-weight: 500; margin-bottom: 6px; color: var(--text-main); }
+        .form-group label span { color: var(--text-muted); font-weight: normal; font-size: 12px; }
+        
+        .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; color: var(--text-main); outline: none; background: #fff; }
+        .form-control:focus { border-color: #94a3b8; }
+        textarea.form-control { resize: vertical; min-height: 60px; }
+
+        /* Recipients Multi-Select Simulation */
+        .recipient-type-select { width: 30%; margin-right: 8px; }
+        .recipient-target-input { width: 70%; }
+
+        /* Dynamic Meta Section */
+        .dynamic-meta-section { background: #f8fafc; padding: 16px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 16px; }
+        .dynamic-meta-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        /* Infinite Custom Milestones Component */
+        .milestones-section { border-top: 1px dashed var(--border-color); padding-top: 20px; margin-top: 20px; }
+        .milestone-row { display: flex; gap: 12px; margin-bottom: 8px; align-items: center; }
+        
+        .add-milestone-link { color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 500; display: inline-block; margin-top: 4px; }
+        .remove-milestone-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 12px; padding: 0 4px; }
+
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px; background: #fafafa; }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; color: var(--text-main); }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="top-navbar">
+        <div class="app-title">
+            <h2>Hệ thống Hồ sơ & Văn bản Nội bộ</h2>
+        </div>
+        <button class="create-trigger-btn" onclick="openModal()">[+ Khởi tạo văn bản điều hành]</button>
+    </div>
+
+    <div class="console-box" id="liveConsole">
+        Trạng thái hệ thống: Sẵn sàng. Nhấn nút phía trên để kiểm tra toàn bộ cấu trúc trường dữ liệu (Metadata, Nơi nhận, Số hiệu, và Tiến độ tùy chỉnh).
+    </div>
+
+    <!-- MAIN COMPREHENSIVE CREATOR MODAL -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3>Khởi tạo Văn bản & Thiết lập Quy trình</h3>
+                <button class="close-modal-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                
+                <!-- ROW 1: Official Number & Document Type -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Số / Ký hiệu văn bản <span>(Số hiệu chính thức)</span></label>
+                        <input type="text" id="docNumber" class="form-control" placeholder="Ví dụ: 45/TTr-IT hoặc QĐ-2026/01">
+                    </div>
+                    <div class="form-group">
+                        <label>Loại văn bản hành chính *</label>
+                        <select id="docTypeSelect" class="form-control" onchange="adjustDynamicMetadataFields()">
+                            <option value="Chỉ đạo">Văn bản Chỉ đạo (Quyết định, Chỉ thị, Nghị quyết)</option>
+                            <option value="Tổ chức">Văn bản Tổ chức bộ máy (Quy chế, Quy định)</option>
+                            <option value="Thông tin" selected>Văn bản Thông tin / Giao dịch (Tờ trình, Công văn, Báo cáo)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ROW 2: Core Summary Title -->
+                <div class="form-group full-width">
+                    <label>Trích yếu nội dung văn bản *</label>
+                    <input type="text" id="docTitle" class="form-control" placeholder="Tóm tắt ngắn gọn mục đích văn bản...">
+                </div>
+
+                <!-- ROW 3: Flexible Recipients System -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phạm vi nơi nhận văn bản *</label>
+                        <div style="display: flex; width: 100%;">
+                            <select id="recipientScope" class="form-control recipient-type-select" onchange="updateRecipientPlaceholder()">
+                                <option value="Toàn tổ chức">Toàn bộ (All)</option>
+                                <option value="Phòng ban">Phòng ban</option>
+                                <option value="Cá nhân">Cá nhân</option>
+                            </select>
+                            <input type="text" id="recipientTarget" class="form-control recipient-target-input" placeholder="Áp dụng cho toàn bộ nhân sự hệ thống" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex: 0 0 30%;">
+                        <label>Độ khẩn xử lý</label>
+                        <select class="form-control">
+                            <option>Thường</option>
+                            <option>Khẩn</option>
+                            <option>Thượng khẩn</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ROW 4: Conditional Form Section (JSONB Meta Fields) -->
+                <div class="dynamic-meta-section" id="dynamicMetaBlock">
+                    <div class="dynamic-meta-title">Thuộc tính pháp lý bắt buộc (Theo Nghị định 30)</div>
+                    <div id="dynamicFieldsContainer">
+                        <!-- Injected dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- ROW 5: Optional Notes/Remarks Field -->
+                <div class="form-group full-width">
+                    <label>Ghi chú hệ thống <span>(Tùy chọn)</span></label>
+                    <textarea id="docNotes" class="form-control" placeholder="Nhập các lưu ý nội bộ hoặc chỉ dẫn bổ sung cho người xử lý..."></textarea>
+                </div>
+
+                <!-- ROW 6: Custom Infinite Milestones Sub-System -->
+                <div class="milestones-section">
+                    <label style="font-weight: 600; margin-bottom: 4px; display: block;">Thiết lập Tiến độ & Cột mốc Xử lý Tùy chọn</label>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Người tạo tự do bổ sung không giới hạn các bước duyệt hoặc mốc thời gian kiểm soát trung gian.</p>
+                    
+                    <div id="milestonesContainer">
+                        <!-- Custom rows append here on demand -->
+                    </div>
+                    
+                    <span class="add-milestone-link" onclick="addNewMilestoneRow()">+ Thêm cột mốc tiến độ trung gian</span>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Hủy</button>
+                <button class="btn-primary" onclick="submitComprehensiveDocument()">Lưu trữ và trình ký</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('createModal');
+        const dynamicContainer = document.getElementById('dynamicFieldsContainer');
+        const milestonesContainer = document.getElementById('milestonesContainer');
+
+        function openModal() {
+            modal.classList.add('active');
+            adjustDynamicMetadataFields();
+            milestonesContainer.innerHTML = "";
+            addNewMilestoneRow(); 
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Handles the dynamic placeholder for Recipients input field
+        function updateRecipientPlaceholder() {
+            const scope = document.getElementById('recipientScope').value;
+            const targetInput = document.getElementById('recipientTarget');
+            
+            if (scope === "Toàn tổ chức") {
+                targetInput.placeholder = "Áp dụng cho toàn bộ nhân sự hệ thống";
+                targetInput.value = "";
+                targetInput.disabled = true;
+            } else if (scope === "Phòng ban") {
+                targetInput.placeholder = "Nhập tên phòng (VD: Phòng IT, Phòng Kế toán...)";
+                targetInput.disabled = false;
+            } else {
+                targetInput.placeholder = "Nhập tên hoặc Email cá nhân cụ thể...";
+                targetInput.disabled = false;
+            }
+        }
+
+        // Custom law fields for Decree 30/2020/NĐ-CP
+        function adjustDynamicMetadataFields() {
+            const currentSelection = document.getElementById('docTypeSelect').value;
+            let htmlOutput = "";
+
+            if (currentSelection === "Chỉ đạo") {
+                htmlOutput = `
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:12px;">Căn cứ pháp lý / Văn bản quy chiếu cấp trên *</label>
+                        <input type="text" class="form-control" placeholder="Nhập số hiệu Nghị định/Thông tư căn cứ pháp lý...">
+                    </div>`;
+            } else if (currentSelection === "Tổ chức") {
+                htmlOutput = `
+                    <div class="form-row" style="margin-bottom:0;">
+                        <div class="form-group">
+                            <label style="font-size:12px;">Ngày ký ban hành *</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:12px;">Ngày chính thức có hiệu lực *</label>
+                            <input type="date" class="form-control">
+                        </div>
+                    </div>`;
+            } else { 
+                htmlOutput = `
+                    <div class="form-row" style="margin-bottom:0; gap: 16px;">
+                        <div class="form-group">
+                            <label style="font-size:12px;">Đơn vị chủ trì soạn thảo *</label>
+                            <input type="text" class="form-control" placeholder="Bộ phận đề xuất khởi tạo...">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:12px;">Hồ sơ dự thảo (.docx) đính kèm</label>
+                            <input type="file" style="font-size:12px; margin-top:6px;">
+                        </div>
+                    </div>`;
+            }
+            dynamicContainer.innerHTML = htmlOutput;
+        }
+
+        // Custom Infinite Milestone Matrix Generator
+        function addNewMilestoneRow() {
+            const rowId = "ms_" + Date.now();
+            const milestoneDiv = document.createElement('div');
+            milestoneDiv.className = "milestone-row";
+            milestoneDiv.id = rowId;
+            
+            milestoneDiv.innerHTML = `
+                <input type="text" class="form-control" style="flex: 2.5;" placeholder="Tên mốc trung gian (VD: Sửa đổi bản thảo v1, Chờ Trưởng phòng thẩm định...)">
+                <input type="date" class="form-control" style="flex: 1;">
+                <button class="remove-milestone-btn" onclick="removeMilestoneRow('${rowId}')">Xóa</button>
+            `;
+            milestonesContainer.appendChild(milestoneDiv);
+        }
+
+        function removeMilestoneRow(rowId) {
+            const targetRow = document.getElementById(rowId);
+            if (targetRow) targetRow.remove();
+        }
+
+        // Simulated storage breakdown output
+        function submitComprehensiveDocument() {
+            const title = document.getElementById('docTitle').value;
+            const docNum = document.getElementById('docNumber').value || "Chưa cấp số";
+            const recipientScope = document.getElementById('recipientScope').value;
+            const recipientTarget = document.getElementById('recipientTarget').value || "Tất cả";
+            const note = document.getElementById('docNotes').value || "Không có";
+            
+            if(!title) {
+                alert("Vui lòng nhập trích yếu nội dung văn bản!");
+                return;
+            }
+
+            const milestoneCount = milestonesContainer.querySelectorAll('.milestone-row').length;
+            
+            closeModal();
+            
+            document.getElementById('liveConsole').innerHTML = `
+                <strong>Lưu trữ thành công!</strong> <br>
+                • Số hiệu: ${docNum} | Trích yếu: "${title}" <br>
+                • Nơi nhận: [${recipientScope}] → ${recipientTarget} <br>
+                • Ghi chú: ${note} <br>
+                • Tiến độ: Ghi nhận ${milestoneCount} mốc kiểm soát tùy chọn lưu dạng JSONB array.
+            `;
+        }
+    </script>
+</body>
+</html>
